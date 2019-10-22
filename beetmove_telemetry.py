@@ -1,9 +1,14 @@
+import aiohttp
+import asyncio
 import argparse
 import os
 import requests
 import zipfile
 
+from context import Context
+
 ZIP_MAX_SIZE_IN_MB = 1
+
 
 def download_zip_archive(url, zip_path):
     # switch to asyncio
@@ -70,17 +75,45 @@ def check_extract_and_delete_zip_archive(zip_path):
     return extracted_files
 
 
-def main(release_url, zip_path):
+async def move_beets():
+    pass
+
+
+async def async_main(context):
+    # TODO: manually download artifacts from Github and bake them in a zip
+    # TODO: bash script to do that for you
+
     # download the release archive from Github
-    download_zip_archive(release_url, zip_path)
+    download_zip_archive(context.release_url, context.zip_path)
 
     # explode zip archive
-    check_extract_and_delete_zip_archive(zip_path)
+    context.extracted_files = check_extract_and_delete_zip_archive(context.zip_path)
 
+    # XXX: do we need another session here?
     # transfer files to S3
+    import pdb; pdb.set_trace()
+    await move_beets(context)
 
 
-if __name__=='__main__':
+async def _handle_asyncio_loop(async_main, context):
+    async with aiohttp.ClientSession() as session:
+        context.session = session
+        try:
+            await async_main(context)
+        except Exception as exc:
+            sys.exit(exc.exit_code)
+
+
+def sync_main(async_main, release_url, zip_path):
+    context = Context()
+    context.release_url = release_url
+    context.zip_path = zip_path
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(_handle_asyncio_loop(async_main, context))
+
+
+def main():
     parser = argparse.ArgumentParser(description='Telemetry upload')
     parser.add_argument('--release-url', dest='release_url',
                         action='store', required=True)
@@ -90,4 +123,7 @@ if __name__=='__main__':
         exit(1)
 
     zip_path = '/tmp/target.zip'
-    main(args.release_url, zip_path)
+    sync_main(async_main, args.release_url, zip_path)
+
+
+__name__=='__main__' and main()
