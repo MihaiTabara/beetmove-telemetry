@@ -129,14 +129,12 @@ async def put(context, url, headers, abs_filename, session=None):
     session = session or context.session
     with open(abs_filename, "rb") as fh:
         async with session.put(url, data=fh, headers=headers, compress=False) as resp:
-            log.info("put {}: {}".format(abs_filename, resp.status))
+            print(f"put {abs_filename}: {resp.status}")
             response_text = await resp.text()
             if response_text:
-                log.info(response_text)
+                print(response_text)
             if resp.status not in (200, 204):
-                raise Exception(
-                    "Bad status {}".format(resp.status),
-                )
+                raise Exception(f"Bad status {resp.status}")
     return resp
 
 
@@ -147,7 +145,7 @@ async def upload_to_s3(context, s3_key, path):
         raise Exception(f"Unable to discover valid mime-type for path ({path}), "
                         "mimetypes.guess_type() returned {mime_type}")
     api_kwargs = {
-        'Bucket': context.bucket,
+        'Bucket': context.config['bucket_config'][context.bucket]['buckets']['telemetry'],
         'Key': s3_key,
         'ContentType': mime_type,
     }
@@ -196,8 +194,10 @@ async def async_main(context):
     # explode zip archive
     context.extracted_files = check_extract_and_delete_zip_archive(context.zip_path)
 
-    # XXX: do we need another session here?
-    await move_beets(context)
+    connector = aiohttp.TCPConnector(limit=10)
+    async with aiohttp.ClientSession(connector=connector) as session:
+        context.session = session
+        await move_beets(context)
 
 
 async def _handle_asyncio_loop(async_main, context):
