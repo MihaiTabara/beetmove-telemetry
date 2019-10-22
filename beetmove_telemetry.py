@@ -3,11 +3,12 @@ import asyncio
 import argparse
 import os
 import requests
+import sys
 import zipfile
 
 from context import Context
 
-ZIP_MAX_SIZE_IN_MB = 1
+ZIP_MAX_SIZE_IN_MB = 10
 
 
 def download_zip_archive(url, zip_path):
@@ -91,7 +92,6 @@ async def async_main(context):
 
     # XXX: do we need another session here?
     # transfer files to S3
-    import pdb; pdb.set_trace()
     await move_beets(context)
 
 
