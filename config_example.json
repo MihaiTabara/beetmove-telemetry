@@ -1,0 +1,22 @@
+{
+    "bucket_config": {
+        "maven-staging": {
+            "credentials": {
+                "id": "key_id",
+                "key": "key_pwd"
+            },
+            "buckets": {
+              "telemetry": "maven-bucket-upload"
+            }
+        },
+        "maven-production": {
+            "credentials": {
+                "id": "key_id",
+                "key": "key_pwd"
+            },
+            "buckets": {
+              "telemetry": "maven-bucket-upload"
+            }
+        }
+    }
+}
