@@ -170,9 +170,9 @@ async def move_beets(context):
     for file, local_path in context.extracted_files.items():
         # TODO: to fix via regex etraction here
         if 'forUnitTests' in file:
-            destination = f"maven2/org/mozilla/telemetry/glean/{context.version}/{file}"
-        else:
             destination = f"maven2/org/mozilla/telemetry/glean-forUnitTests/{context.version}/{file}"
+        else:
+            destination = f"maven2/org/mozilla/telemetry/glean/{context.version}/{file}"
 
         uploads.append(
             asyncio.ensure_future(
