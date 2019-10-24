@@ -159,12 +159,13 @@ async def upload_to_s3(context, s3_key, path):
 
     # FIXME: add proper logging
     print(f"upload_to_s3: {path} -> s3://{context.bucket}/{s3_key}")
+    # TODO: add option for dry-run with this command commented
     await put(context, url, headers, path, session=context.session)
 
 
 async def move_beets(context):
     # FIXME: add argapse cmd argument for version
-    context.version = '0.0.1-TESTING7'
+    context.version = '19.0.0'
 
     uploads = []
     for file, local_path in context.extracted_files.items():
@@ -184,12 +185,8 @@ async def move_beets(context):
 
 
 async def async_main(context):
-    # TODO: manually download artifacts from Github and bake them in a zip
-    # TODO: bash script to do that for you
-
     # download the release archive from Github
-    # TODO: uncomment this before final testing
-    # download_zip_archive(context.release_url, context.zip_path)
+    download_zip_archive(context.release_url, context.zip_path)
 
     # explode zip archive
     context.extracted_files = check_extract_and_delete_zip_archive(context.zip_path)
