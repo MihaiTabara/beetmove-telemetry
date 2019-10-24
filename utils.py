@@ -2,12 +2,12 @@
 Module containing util functions to serve pushing telemetry artifacts under
 maven.mozilla.org
 """
-import aiohttp
-import asyncio
-import boto3
 import json
 import mimetypes
 import sys
+import asyncio
+import aiohttp
+import boto3
 
 from constants import MIME_MAP, CACHE_CONTROL_MAXAGE
 
@@ -25,26 +25,18 @@ def load_json_or_yaml(string, is_path=False, file_type='json',
     _load_fh = json.load
     _load_str = json.loads
 
-    try:
-        if is_path:
-            with open(string, 'r') as fh:
-                contents = _load_fh(fh)
-        else:
-            contents = _load_str(string)
-        return contents
-    except (OSError, ValueError, yaml.scanner.ScannerError) as exc:
-        if exception is not None:
-            repl_dict = {'exc': str(exc), 'file_type': file_type}
-            raise exception(message % repl_dict)
+    if is_path:
+        with open(string, 'r') as fh:
+            contents = _load_fh(fh)
+    else:
+        contents = _load_str(string)
+    return contents
 
 
 async def _handle_asyncio_loop(async_main, context):
     async with aiohttp.ClientSession() as session:
         context.session = session
-        try:
-            await async_main(context)
-        except Exception as exc:
-            sys.exit(exc.exit_code)
+        await async_main(context)
 
 
 async def _process_future_exceptions(tasks, raise_at_first_error):
@@ -104,5 +96,5 @@ async def upload_to_s3(context, s3_key, path):
 
     # FIXME: add proper logging
     print(f"upload_to_s3: {path} -> s3://{context.bucket}/{s3_key}")
-    # TODO: add option for dry-run with this command commented
-    # await put(context, url, headers, path, session=context.session)
+    if not context.dry_run:
+        await put(context, url, headers, path, session=context.session)

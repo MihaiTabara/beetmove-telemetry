@@ -1,9 +1,10 @@
 """
-Module containing zip-manipulating functions to serve pushing telemetry artifacts under maven.mozilla.org
+Module with zip-manipulating functions to serve pushing telemetry artifacts
+under maven.mozilla.org
 """
 import os
-import requests
 import zipfile
+import requests
 
 
 from constants import (
