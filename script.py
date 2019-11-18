@@ -14,15 +14,23 @@ from zip import (
 )
 
 
+GLEAN_PACKAGES = [
+    'glean',
+    'glean-forUnitTests',
+    'glean-gradle-plugin'
+]
+
+
 async def move_beets(context):
     """TODO"""
     uploads = []
     for file, local_path in context.extracted_files.items():
-        # TODO: to fix via regex etraction here
-        if 'forUnitTests' in file:
-            destination = f"maven2/org/mozilla/telemetry/glean-forUnitTests/{context.version}/{file}"
+        for package_name in GLEAN_PACKAGES:
+            if file.startswith(f"{package_name}-{context.version}"):
+                destination = f"maven2/org/mozilla/telemetry/{package_name}/{context.version}/{file}"
+                break
         else:
-            destination = f"maven2/org/mozilla/telemetry/glean/{context.version}/{file}"
+            continue
 
         uploads.append(
             asyncio.ensure_future(
