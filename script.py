@@ -44,7 +44,7 @@ async def move_beets(context):
 async def async_main(context):
     """TODO"""
     # download the release archive from Github
-    # download_zip_archive(context.release_url, context.zip_path)
+    download_zip_archive(context.release_url, context.zip_path)
 
     # explode zip archive
     context.extracted_files = check_extract_and_delete_zip_archive(context.zip_path)
