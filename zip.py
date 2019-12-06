@@ -15,6 +15,7 @@ from constants import (
 
 def download_zip_archive(url, zip_path):
     # switch to asyncio
+    print(f'Downloading {url} to {zip_path}...')
     ret = requests.get(url)
 
     # FIXME: switch to NamedTemporaryFile here
